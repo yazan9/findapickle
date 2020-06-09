@@ -22,24 +22,11 @@ public class UsersService {
   private ModelMapper modelMapper;
 
   @Autowired 
-  private ConversionService<User> conversionService;
+  private PickleConversionService<User> conversionService;
 
   public UserDTO findById(Long id) {
     User user = usersRepository.findById(id).orElseThrow(() -> new NotFoundException());
     return this.UserEntityToDto(user);
-  }
-
-  public ResponseEntity<?> save(String user) {
-    try {
-      User newUser = this.conversionService.JsontoEntity(user, User.class);
-
-      this.usersRepository.save(newUser);
-      return ResponseEntity.ok().build();
-    } catch (DataIntegrityViolationException e) {
-      throw new DuplicateEntryException("A user with the same email already exists");
-    } catch (Exception e) {
-      throw new InternalServerErrorException();
-    }
   }
 
   public ResponseEntity<?> update(String user) {

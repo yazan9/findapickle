@@ -6,7 +6,7 @@ import com.findapickle.backend.exceptions.UnprocessableEntityException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ConversionService<T> {
+public class PickleConversionService<T> {
     public T JsontoEntity(String dto, Class<T> target) {
         try {
           ObjectMapper mapper = new ObjectMapper();

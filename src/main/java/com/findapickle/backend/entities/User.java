@@ -31,6 +31,8 @@ public class User implements Serializable{
     @Column(unique=true)
     private String email;
 
+    private String password;
+
     private String avatar;
 
     private String facebookId;
@@ -138,5 +140,13 @@ public class User implements Serializable{
         if (id != other.id)
             return false;
         return true;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

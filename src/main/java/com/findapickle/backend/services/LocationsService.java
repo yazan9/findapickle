@@ -21,7 +21,7 @@ public class LocationsService {
     private LocationsRepository locationsRepository;
 
     @Autowired 
-    private ConversionService<Location> conversionService;
+    private PickleConversionService<Location> conversionService;
 
     @Autowired
     private ModelMapper modelMapper;

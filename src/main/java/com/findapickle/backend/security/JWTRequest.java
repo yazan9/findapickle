@@ -6,7 +6,6 @@ public class JWTRequest implements Serializable {
     private static final long serialVersionUID = 5926468583005150707L;
     private String email;
     private String password;
-    private String username;
 
     // need default constructor for JSON Parsing
     public JWTRequest() {
@@ -15,7 +14,6 @@ public class JWTRequest implements Serializable {
     public JWTRequest(String email, String password, String username){
         this.setEmail(email);
         this.setPassword(password);
-        this.setUsername(username);
     }
 
     public String getPassword() {
@@ -32,13 +30,5 @@ public class JWTRequest implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

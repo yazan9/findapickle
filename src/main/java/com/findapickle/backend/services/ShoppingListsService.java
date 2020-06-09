@@ -23,7 +23,7 @@ public class ShoppingListsService {
     private ModelMapper modelMapper;
 
     @Autowired
-    private ConversionService<ShoppingList> conversionService;
+    private PickleConversionService<ShoppingList> conversionService;
 
     public List<ShoppingListDTO> getAllShoppingLists() {
         List<ShoppingList> shoppingLists = shoppingListsRepository.findAll();

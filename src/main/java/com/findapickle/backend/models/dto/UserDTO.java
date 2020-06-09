@@ -19,6 +19,8 @@ public class UserDTO{
 
     public LocalDateTime updatedAt;
 
+    public String password;
+
     public UserDTO(){}
 
     public long getId() {
@@ -83,5 +85,13 @@ public class UserDTO{
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }
