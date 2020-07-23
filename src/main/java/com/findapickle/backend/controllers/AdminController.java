@@ -2,8 +2,10 @@ package com.findapickle.backend.controllers;
 
 import java.util.List;
 
-import com.findapickle.backend.models.dto.ShoppingListDTO;
-import com.findapickle.backend.models.dto.UserDTO;
+import com.findapickle.backend.models.dto.Location;
+import com.findapickle.backend.models.dto.ShoppingList;
+import com.findapickle.backend.models.dto.Store;
+import com.findapickle.backend.models.dto.User;
 import com.findapickle.backend.services.AdminService;
 import com.findapickle.backend.services.LocationsService;
 import com.findapickle.backend.services.ShoppingListsService;
@@ -11,14 +13,7 @@ import com.findapickle.backend.services.StoresService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/admin")
@@ -31,52 +26,54 @@ public class AdminController {
 
     //USERS
     @GetMapping(value="/users/all")
-    public List<UserDTO> getAllUsers()
+    public List<User> getAllUsers(@RequestHeader("Authorization") String token)
     {
-        return adminService.getAllUsers();
+        return adminService.getAllUsers(token);
     }
 
     @DeleteMapping(value="/users/delete/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable long id){
-        return adminService.deleteById(id);
+    public ResponseEntity<?> deleteUser(@RequestHeader("Authorization") String token, @PathVariable long id){
+        adminService.deleteUserById(token, id);
+        return ResponseEntity.ok().build();
     }
 
     //STORES
     @PostMapping(value="/stores/add")
-    public ResponseEntity<?> addStore(@RequestBody String store){
-        return storesService.save(store);
+    public ResponseEntity<?> addStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
+        return storesService.save(token, store);
     }   
 
     @PutMapping(value="/stores/edit")
-    public ResponseEntity<?> updateStore(@RequestBody String store){
-        return storesService.update(store);
+    public ResponseEntity<?> updateStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
+        return storesService.update(token, store);
     }
 
     @DeleteMapping(value="/stores/delete/{id}")
-    public ResponseEntity<?> deleteStore(@PathVariable long id){
-        return storesService.delete(id);
+    public ResponseEntity<?> deleteStore(@RequestHeader("Authorization") String token, @PathVariable long id){
+        return storesService.delete(token, id);
     }
 
     //LOCATIONS
     @PostMapping(value="/locations/add")
-    public ResponseEntity<?> addLocation(@RequestBody String location){
-        return locationsService.save(location);
+    public Location addLocation(@RequestHeader("Authorization") String token, @RequestBody Location location){
+        return locationsService.save(token, location);
     }   
 
     @PutMapping(value="/locations/edit")
-    public ResponseEntity<?> updateLocation(@RequestBody String location){
-        return locationsService.update(location);
+    public Location updateLocation(@RequestHeader("Authorization") String token, @RequestBody Location location){
+        return locationsService.update(token, location);
     }
 
     @DeleteMapping(value="/locations/delete/{id}")
-    public ResponseEntity<?> deleteLocation(@PathVariable long id){
-        return locationsService.delete(id);
+    public ResponseEntity<?> deleteLocation(@RequestHeader("Authorization") String token, @PathVariable long id){
+        locationsService.delete(token, id);
+        return ResponseEntity.ok().build();
     }
 
     //SHOPPING LISTS
     @GetMapping(value="/shoppingLists")
-    public List<ShoppingListDTO> getAllShoppingLists()
+    public List<ShoppingList> getAllShoppingLists(@RequestHeader("Authorization") String token)
     {
-        return shoppingListsService.getAllShoppingLists();
+        return shoppingListsService.getAllShoppingLists(token);
     }    
 }

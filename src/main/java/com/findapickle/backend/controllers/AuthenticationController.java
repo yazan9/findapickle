@@ -1,10 +1,11 @@
 package com.findapickle.backend.controllers;
 
-import com.findapickle.backend.entities.User;
+import com.findapickle.backend.entities.UserEntity;
 import com.findapickle.backend.exceptions.BadRequestException;
 import com.findapickle.backend.exceptions.DuplicateEntryException;
 import com.findapickle.backend.exceptions.InternalServerErrorException;
-import com.findapickle.backend.models.dto.UserDTO;
+import com.findapickle.backend.exceptions.NotFoundException;
+import com.findapickle.backend.models.dto.User;
 import com.findapickle.backend.repositories.UsersRepository;
 import com.findapickle.backend.security.JWTRequest;
 import com.findapickle.backend.security.JWTResponse;
@@ -42,7 +43,7 @@ public class AuthenticationController {
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public JWTResponse authenticate(@RequestBody JWTRequest authenticationRequest) throws Exception {
         doAuthenticate(authenticationRequest.getEmail(), authenticationRequest.getPassword());
-        final User userDetails = usersRepository.findByEmail(authenticationRequest.getEmail());
+        final UserEntity userDetails = usersRepository.findByEmail(authenticationRequest.getEmail()).orElseThrow(NotFoundException::new);
         final String accessToken = jwtTokenUtil.generateToken(userDetails);
         return new JWTResponse(accessToken);
     }
@@ -61,11 +62,11 @@ public class AuthenticationController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public JWTResponse register(@RequestBody UserDTO user) throws Exception {
+    public JWTResponse register(@RequestBody User user) throws Exception {
         try {
-            User savedUser = userDetailsService.save(user);
+            UserEntity savedUser = userDetailsService.save(user);
             doAuthenticate(savedUser.getEmail(), savedUser.getPassword());
-            final User userDetails = usersRepository.findByEmail(savedUser.getEmail());
+            final UserEntity userDetails = usersRepository.findByEmail(savedUser.getEmail()).orElseThrow(NotFoundException::new);;
             final String accessToken = jwtTokenUtil.generateToken(userDetails);
             return new JWTResponse(accessToken);
         } catch (DataIntegrityViolationException e) {

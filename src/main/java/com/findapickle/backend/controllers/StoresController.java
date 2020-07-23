@@ -2,7 +2,7 @@ package com.findapickle.backend.controllers;
 
 import java.util.List;
 
-import com.findapickle.backend.models.dto.StoreDTO;
+import com.findapickle.backend.models.dto.Store;
 import com.findapickle.backend.services.StoresService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ public class StoresController {
     @Autowired private StoresService storesService;
 
     @GetMapping(value="/{id}")
-    public StoreDTO getStoreById(@PathVariable Long id)
+    public Store getStoreById(@PathVariable Long id)
     {
         return storesService.findById(id);
     }
     
     @GetMapping(value="/")
-    public List<StoreDTO> getAllStores()
+    public List<Store> getAllStores()
     {
         return storesService.getAllStores();
     }    

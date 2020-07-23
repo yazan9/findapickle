@@ -1,15 +1,19 @@
 package com.findapickle.backend.services;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.findapickle.backend.entities.Store;
+import com.findapickle.backend.entities.StoreEntity;
+import com.findapickle.backend.exceptions.ForbiddenException;
 import com.findapickle.backend.exceptions.InternalServerErrorException;
 import com.findapickle.backend.exceptions.NotFoundException;
-import com.findapickle.backend.models.dto.StoreDTO;
+import com.findapickle.backend.models.dto.Store;
 import com.findapickle.backend.repositories.StoresRepository;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,54 +24,62 @@ public class StoresService {
     private StoresRepository storesRepository;
 
     @Autowired
-    private ModelMapper modelMapper;
+    private AdminService adminService;
 
     @Autowired
-    private PickleConversionService<Store> conversionService;
+    private ModelMapper modelMapper;
 
-    public List<StoreDTO> getAllStores() {
-        List<Store> stores = storesRepository.findAll();
-        return stores.stream().map(this::StoreEntityToDto).collect(Collectors.toList());
+    private final Logger logger = LoggerFactory.getLogger(StoresService.class);
+
+    public List<Store> getAllStores() {
+        List<StoreEntity> stores = storesRepository.findAll();
+        return Collections.singletonList(modelMapper.map(stores, Store.class));
     }
 
-    public StoreDTO findById(Long id){
-        Store store = storesRepository.findById(id).orElseThrow(() -> new NotFoundException());
-        return this.StoreEntityToDto(store);
+    public Store findById(Long id){
+        StoreEntity store = storesRepository.findById(id).orElseThrow(NotFoundException::new);
+        return modelMapper.map(store, Store.class);
     }
 
-    public ResponseEntity<?> save(String store) {
+    public ResponseEntity<?> save(String token, Store store) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Store newStore = this.conversionService.JsontoEntity(store, Store.class);
+            StoreEntity newStore = modelMapper.map(store, StoreEntity.class);
             this.storesRepository.save(newStore);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> update(String store) {
+    public ResponseEntity<?> update(String token, Store store) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Store updatedStore = this.conversionService.JsontoEntity(store, Store.class);
+            StoreEntity updatedStore = storesRepository.findById(store.getId()).orElseThrow(NotFoundException::new);
+            updatedStore.setName(store.getName());
             this.storesRepository.save(updatedStore);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> delete(Long id) {
+    public ResponseEntity<?> delete(String token, Long id) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Store foundStore = this.storesRepository.findById(id).orElseThrow(() -> new NotFoundException());
+            StoreEntity foundStore = this.storesRepository.findById(id).orElseThrow(NotFoundException::new);
             this.storesRepository.delete(foundStore);
             return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
-    }
-
-    private StoreDTO StoreEntityToDto(Store store) {
-        return modelMapper.map(store, StoreDTO.class);
     }
 }

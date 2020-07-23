@@ -14,12 +14,18 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "locations")
-public class Location implements Serializable {
+public class LocationEntity implements Serializable {
     private static final long serialVersionUID = -748956247024967639L;
     
     @Id
@@ -36,68 +42,16 @@ public class Location implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne private Store store;
+    @ManyToOne private StoreEntity store;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Section> sections = new ArrayList<>();
+    private List<SectionEntity> sections = new ArrayList<>();
 
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Store getStore() {
-        return store;
-    }
-
-    public void setStore(Store store) {
-        this.store = store;
-    }
-
-    public List<Section> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<Section> sections) {
-        this.sections = sections;
-    }
-
-    public void addSection(Section section){
+    public void addSection(SectionEntity section){
         this.sections.add(section);
     }
 
-    public void removeSection(Section section){
+    public void removeSection(SectionEntity section){
         this.sections.remove(section);
     }
 
@@ -117,7 +71,7 @@ public class Location implements Serializable {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Location other = (Location) obj;
+        LocationEntity other = (LocationEntity) obj;
         if (id != other.id)
             return false;
         return true;

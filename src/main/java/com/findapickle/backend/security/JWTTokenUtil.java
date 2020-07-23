@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import com.findapickle.backend.entities.User;
+import com.findapickle.backend.entities.UserEntity;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,9 +25,9 @@ public class JWTTokenUtil implements Serializable {
     @Value("${jwt.secret}")
     private String secret;
 
-    // retrieve username from jwt token
-    public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+    // retrieve email from jwt token
+    public String getEmailFromToken(String token) {
+        return getClaimFromToken(stripToken(token), Claims::getSubject);
     }
 
     // retrieve id from jwt token
@@ -58,7 +58,7 @@ public class JWTTokenUtil implements Serializable {
     }
 
     // generate token for user
-    public String generateToken(User user) {
+    public String generateToken(UserEntity user) {
         Map<String, Object> claims = new HashMap<>();
         return doGenerateToken(claims, user);
     }
@@ -69,7 +69,7 @@ public class JWTTokenUtil implements Serializable {
     // 3. According to JWS Compact
     // Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
     // compaction of the JWT to a URL-safe string
-    private String doGenerateToken(Map<String, Object> claims, User user) {
+    private String doGenerateToken(Map<String, Object> claims, UserEntity user) {
         claims.put("avatar", user.getAvatar());
         claims.put("username", user.getUsername());
         claims.put("id", user.getId());
@@ -81,7 +81,14 @@ public class JWTTokenUtil implements Serializable {
 
     // validate token
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
+        final String username = getEmailFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    protected String stripToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return token;
     }
 }

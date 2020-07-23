@@ -13,12 +13,18 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "stores")
-public class Store implements Serializable{
+public class StoreEntity implements Serializable{
     private static final long serialVersionUID = -748956247024967639L;
     
     @Id
@@ -34,49 +40,13 @@ public class Store implements Serializable{
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Location> locations = new ArrayList<>();
+    private List<LocationEntity> locations = new ArrayList<>();
 
-    public long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<Location> getLocations() {
-        return locations;
-    }
-
-    public void setLocations(List<Location> locations) {
-        this.locations = locations;
-    }
-
-    public void addLocation(Location location){
+    public void addLocation(LocationEntity location){
         this.locations.add(location);
     }
 
-    public void removeLocation(Location location){
+    public void removeLocation(LocationEntity location){
         this.locations.remove(location);
     }
 
@@ -96,7 +66,7 @@ public class Store implements Serializable{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Store other = (Store) obj;
+        StoreEntity other = (StoreEntity) obj;
         if (id != other.id)
             return false;
         return true;

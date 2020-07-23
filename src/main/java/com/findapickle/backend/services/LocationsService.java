@@ -1,15 +1,19 @@
 package com.findapickle.backend.services;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.findapickle.backend.entities.Location;
+import com.findapickle.backend.entities.LocationEntity;
+import com.findapickle.backend.exceptions.ForbiddenException;
 import com.findapickle.backend.exceptions.InternalServerErrorException;
 import com.findapickle.backend.exceptions.NotFoundException;
-import com.findapickle.backend.models.dto.LocationDTO;
+import com.findapickle.backend.models.dto.Location;
 import com.findapickle.backend.repositories.LocationsRepository;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,55 +24,61 @@ public class LocationsService {
     @Autowired
     private LocationsRepository locationsRepository;
 
-    @Autowired 
-    private PickleConversionService<Location> conversionService;
-
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<LocationDTO> getStoreLocations(Long storeId) {
-        List<Location> locations = locationsRepository.findByStoreId(storeId);
-        return locations.stream().map(this::LocationEntityToDto).collect(Collectors.toList());
+    @Autowired
+    private  AdminService adminService;
+
+    private final Logger logger = LoggerFactory.getLogger(LocationsService.class);
+
+    public List<Location> getStoreLocations(Long storeId) {
+        List<LocationEntity> locations = locationsRepository.findByStoreId(storeId).orElseThrow(NotFoundException::new);
+        return Collections.singletonList(modelMapper.map(locations, Location.class));
     }
 
-    public LocationDTO findById(Long id){
-        Location location = locationsRepository.findById(id).orElseThrow(() -> new NotFoundException());
-        return this.LocationEntityToDto(location);
+    public Location findById(Long id){
+        LocationEntity location = locationsRepository.findById(id).orElseThrow(NotFoundException::new);
+        return modelMapper.map(location, Location.class);
     }
 
-    public ResponseEntity<?> save(String location) {
+    public Location save(String token, Location location) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Location newLocation = this.conversionService.JsontoEntity(location, Location.class);
+            LocationEntity newLocation = modelMapper.map(location, LocationEntity.class);
             this.locationsRepository.save(newLocation);
-            return ResponseEntity.ok().build();
+            return modelMapper.map(newLocation, Location.class);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> update(String location) {
+    public Location update(String token, Location location) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Location updatedLocation = this.conversionService.JsontoEntity(location, Location.class);
+            LocationEntity updatedLocation = locationsRepository.findById(location.getId()).orElseThrow(NotFoundException::new);
             this.locationsRepository.save(updatedLocation);
-            return ResponseEntity.ok().build();
+            return modelMapper.map(updatedLocation, Location.class);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> delete(Long id) {
+    public void delete(String token, Long id) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
         try {
-            Location foundLocation = this.locationsRepository.findById(id).orElseThrow(() -> new NotFoundException());
+            LocationEntity foundLocation = this.locationsRepository.findById(id).orElseThrow(NotFoundException::new);
             this.locationsRepository.delete(foundLocation);
-            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
-    }
-
-    private LocationDTO LocationEntityToDto(Location location) {
-        return modelMapper.map(location, LocationDTO.class);
     }
 }

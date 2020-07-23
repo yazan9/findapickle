@@ -1,16 +1,22 @@
 package com.findapickle.backend.services;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.findapickle.backend.entities.User;
+import com.findapickle.backend.entities.UserEntity;
+import com.findapickle.backend.exceptions.ForbiddenException;
 import com.findapickle.backend.exceptions.InternalServerErrorException;
 import com.findapickle.backend.exceptions.NotFoundException;
-import com.findapickle.backend.models.dto.UserDTO;
+import com.findapickle.backend.models.dto.User;
 import com.findapickle.backend.repositories.UsersRepository;
 
+import com.findapickle.backend.security.JWTTokenUtil;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,37 +30,57 @@ public class AdminService {
     @Autowired
     private UsersService usersService;
 
-    public List<UserDTO> getAllUsers() {
-        List<User> users = usersRepository.findAll();
-        return users.stream().map(usersService::UserEntityToDto).collect(Collectors.toList());        
+    @Autowired
+    private JWTTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private ModelMapper mapper;
+
+    private final Logger logger = LoggerFactory.getLogger(AdminService.class);
+
+    public boolean isAdmin(String token){
+        String email = jwtTokenUtil.getEmailFromToken(token);
+        UserEntity user = usersRepository.findByEmail(email).orElse(null);
+
+        if(user == null)
+            return false;
+
+        return user.isAdmin();
     }
 
-    public ResponseEntity<?> delete(User user){
+    public List<User> getAllUsers(String token) {
+        if(!isAdmin(token))
+            throw new ForbiddenException();
+        List<UserEntity> users = usersRepository.findAll();
+        return Collections.singletonList(mapper.map(users, User.class));
+    }
+
+    public void deleteUser(UserEntity user){
         try{
             this.usersRepository.delete(user);
-            return ResponseEntity.ok().build();
         }
         catch(EntityNotFoundException e){
             throw e;
         }
         catch(Exception e){
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     } 
 
-    public ResponseEntity<?> deleteById(Long id){
+    public void deleteUserById(String token, Long id){
+        if(!isAdmin(token))
+            throw new ForbiddenException();
         try{
-            User foundUser = this.usersRepository.findById(id).orElseThrow(() -> new NotFoundException());
+            UserEntity foundUser = this.usersRepository.findById(id).orElseThrow(NotFoundException::new);
             this.usersRepository.delete(foundUser);
-            return ResponseEntity.ok().build();
         }
         catch(NotFoundException e){
             throw e;
         }
         catch(Exception e){
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
-
-    
 }

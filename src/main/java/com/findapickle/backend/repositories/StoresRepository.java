@@ -1,9 +1,7 @@
 package com.findapickle.backend.repositories;
 
-import com.findapickle.backend.entities.Store;
+import com.findapickle.backend.entities.StoreEntity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StoresRepository extends JpaRepository<Store, Long>{
-
-}
+public interface StoresRepository extends JpaRepository<StoreEntity, Long>{}

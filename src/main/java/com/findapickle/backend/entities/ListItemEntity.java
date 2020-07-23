@@ -1,5 +1,9 @@
 package com.findapickle.backend.entities;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,39 +13,23 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "listsItems")
-public class ListItem implements Serializable{
+public class ListItemEntity implements Serializable{
     private static final long serialVersionUID = 5313493413859894404L;
 
     @Id
     @ManyToOne
-    private ShoppingList shoppingList;
+    private ShoppingListEntity shoppingList;
 
     @Id
     @ManyToOne
-    private Item item;
+    private ItemEntity item;
 
-    public ListItem(ShoppingList shoppingList, Item item) {
+    public ListItemEntity(ShoppingListEntity shoppingList, ItemEntity item) {
         this.shoppingList = shoppingList;
-        this.item = item;
-    }
-
-    public ListItem() {
-    }
-
-    public ShoppingList getShoppingList() {
-        return shoppingList;
-    }
-
-    public void setShoppingList(ShoppingList shoppingList) {
-        this.shoppingList = shoppingList;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
         this.item = item;
     }
 
@@ -53,7 +41,7 @@ public class ListItem implements Serializable{
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ListItem that = (ListItem) o;
+        ListItemEntity that = (ListItemEntity) o;
         return Objects.equals(shoppingList, that.shoppingList) && Objects.equals(item, that.item);
     }
 

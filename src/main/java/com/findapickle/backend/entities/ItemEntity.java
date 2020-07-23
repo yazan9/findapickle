@@ -13,12 +13,18 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "items")
-public class Item implements Serializable{
+public class ItemEntity implements Serializable{
     private static final long serialVersionUID = -748956247024967640L;
 
     @Id
@@ -38,74 +44,10 @@ public class Item implements Serializable{
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SectionItem> sections = new ArrayList<>();
+    private List<SectionItemEntity> sections = new ArrayList<>();
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListItem> shoppingLists = new ArrayList<>();
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(String photo) {
-        this.photo = photo;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<SectionItem> getSections() {
-        return sections;
-    }
-
-    public void setSections(List<SectionItem> sections) {
-        this.sections = sections;
-    }
-
-    public List<ListItem> getShoppingLists() {
-        return shoppingLists;
-    }
-
-    public void setShoppingLists(List<ListItem> shoppingLists) {
-        this.shoppingLists = shoppingLists;
-    }
+    private List<ListItemEntity> shoppingLists = new ArrayList<>();
 
     @Override
     public int hashCode() {
@@ -123,7 +65,7 @@ public class Item implements Serializable{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Item other = (Item) obj;
+        ItemEntity other = (ItemEntity) obj;
         if (id != other.id)
             return false;
         return true;

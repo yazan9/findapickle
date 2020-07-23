@@ -2,8 +2,9 @@ package com.findapickle.backend.security;
 
 import java.util.ArrayList;
 
-import com.findapickle.backend.entities.User;
-import com.findapickle.backend.models.dto.UserDTO;
+import com.findapickle.backend.entities.UserEntity;
+import com.findapickle.backend.exceptions.NotFoundException;
+import com.findapickle.backend.models.dto.User;
 import com.findapickle.backend.repositories.UsersRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +25,15 @@ public class JWTUserDetailsService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		User user = usersRepository.findByEmail(email);
+		UserEntity user = usersRepository.findByEmail(email).orElseThrow(NotFoundException::new);
 		if (user == null) {
 			throw new UsernameNotFoundException("The user with the supplied credentials could not be found");
 		}
 		return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
 	}
 
-	public User save(UserDTO user) {
-		User newUser = new User();
+	public UserEntity save(User user) {
+		UserEntity newUser = new UserEntity();
 		newUser.setEmail(user.getEmail());
 		newUser.setUsername(user.getUsername());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));

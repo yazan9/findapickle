@@ -1,15 +1,22 @@
 package com.findapickle.backend.services;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.findapickle.backend.entities.ShoppingList;
+import com.findapickle.backend.entities.ShoppingListEntity;
+import com.findapickle.backend.entities.UserEntity;
+import com.findapickle.backend.exceptions.ForbiddenException;
 import com.findapickle.backend.exceptions.InternalServerErrorException;
 import com.findapickle.backend.exceptions.NotFoundException;
-import com.findapickle.backend.models.dto.ShoppingListDTO;
+import com.findapickle.backend.models.dto.ShoppingList;
 import com.findapickle.backend.repositories.ShoppingListsRepository;
 
+import com.findapickle.backend.repositories.UsersRepository;
+import com.findapickle.backend.security.JWTTokenUtil;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,53 +30,87 @@ public class ShoppingListsService {
     private ModelMapper modelMapper;
 
     @Autowired
-    private PickleConversionService<ShoppingList> conversionService;
+    private AdminService adminService;
 
-    public List<ShoppingListDTO> getAllShoppingLists() {
-        List<ShoppingList> shoppingLists = shoppingListsRepository.findAll();
-        return shoppingLists.stream().map(this::ShoppingListEntityToDto).collect(Collectors.toList());
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private JWTTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UsersRepository usersRepository;
+
+    private final Logger logger = LoggerFactory.getLogger(ShoppingListsService.class);
+
+    public List<ShoppingList> getAllShoppingLists(String token) {
+        if(!adminService.isAdmin(token))
+            throw new ForbiddenException();
+        List<ShoppingListEntity> shoppingLists = shoppingListsRepository.findAll();
+        return Collections.singletonList(modelMapper.map(shoppingLists, ShoppingList.class));
     }
 
-    public ShoppingListDTO findById(Long id){
-        ShoppingList shoppingList = shoppingListsRepository.findById(id).orElseThrow(() -> new NotFoundException());
-        return this.ShoppingListEntityToDto(shoppingList);
+    public ShoppingList findById(String token, Long id){
+        ShoppingListEntity shoppingList = shoppingListsRepository.findById(id).orElseThrow(NotFoundException::new);
+        if(!authService.shoppingListBelongsToUser(token, shoppingList))
+            throw new ForbiddenException();
+        return modelMapper.map(shoppingList, ShoppingList.class);
     }
 
-    public ResponseEntity<?> save(String shoppingList) {
+    public List<ShoppingList> findMyLists(String token){
+        UserEntity user = usersRepository.findByEmail(jwtTokenUtil.getEmailFromToken(token)).orElseThrow(ForbiddenException::new);
+        List<ShoppingListEntity> myLists = shoppingListsRepository.findByUserId(user.getId()).orElseThrow(NotFoundException::new);
+        return Collections.singletonList(modelMapper.map(myLists, ShoppingList.class));
+    }
+
+    public ShoppingList save(String token, ShoppingList shoppingList) {
         try {
-            ShoppingList newShoppingList = this.conversionService.JsontoEntity(shoppingList, ShoppingList.class);
+            UserEntity user = usersRepository.findByEmail(jwtTokenUtil.getEmailFromToken(token)).orElseThrow(ForbiddenException::new);
+            shoppingList.setUserId(user.getId());
+            ShoppingListEntity newShoppingList = modelMapper.map(shoppingList, ShoppingListEntity.class);
             this.shoppingListsRepository.save(newShoppingList);
-            return ResponseEntity.ok().build();
+            return modelMapper.map(newShoppingList, ShoppingList.class);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> update(String shoppingList) {
+    public ShoppingList update(String token, ShoppingList shoppingList) {
         try {
-            ShoppingList updatedShoppingList = this.conversionService.JsontoEntity(shoppingList, ShoppingList.class);
+            ShoppingListEntity updatedShoppingList = shoppingListsRepository.findById(shoppingList.getId()).orElseThrow(NotFoundException::new);
+
+            if(!authService.shoppingListBelongsToUser(token, updatedShoppingList))
+                throw new ForbiddenException();
+
+            UserEntity user = usersRepository.findByEmail(jwtTokenUtil.getEmailFromToken(token)).orElseThrow(ForbiddenException::new);
+
+            shoppingList.setUserId(user.getId());
+            updatedShoppingList.setDescription(shoppingList.getDescription());
+            updatedShoppingList.setName(shoppingList.getName());
 
             this.shoppingListsRepository.save(updatedShoppingList);
-            return ResponseEntity.ok().build();
+            return modelMapper.map(updatedShoppingList, ShoppingList.class);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> delete(Long id) {
+    public void delete(String token, Long id) {
         try {
-            ShoppingList foundShoppingList = this.shoppingListsRepository.findById(id).orElseThrow(() -> new NotFoundException());
+            ShoppingListEntity foundShoppingList = this.shoppingListsRepository.findById(id).orElseThrow(NotFoundException::new);
+
+            if(!authService.shoppingListBelongsToUser(token, foundShoppingList))
+                throw new ForbiddenException();
+
             this.shoppingListsRepository.delete(foundShoppingList);
-            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
+            logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
-    }
-
-    private ShoppingListDTO ShoppingListEntityToDto(ShoppingList store) {
-        return modelMapper.map(store, ShoppingListDTO.class);
     }
 
 }

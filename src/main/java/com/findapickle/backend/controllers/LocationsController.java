@@ -2,7 +2,7 @@ package com.findapickle.backend.controllers;
 
 import java.util.List;
 
-import com.findapickle.backend.models.dto.LocationDTO;
+import com.findapickle.backend.models.dto.Location;
 import com.findapickle.backend.services.LocationsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +19,13 @@ public class LocationsController {
     private LocationsService locationsService;
 
     @GetMapping(value="/{id}")
-    public LocationDTO getLocationById(@PathVariable Long id)
+    public Location getLocationById(@PathVariable Long id)
     {
         return locationsService.findById(id);
     }
     
     @GetMapping(value="/store/{id}")
-    public List<LocationDTO> getStoreLocations(@PathVariable Long id)
+    public List<Location> getStoreLocations(@PathVariable Long id)
     {
         return locationsService.getStoreLocations(id);
     }    

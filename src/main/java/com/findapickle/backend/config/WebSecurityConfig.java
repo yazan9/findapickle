@@ -1,5 +1,7 @@
-package com.findapickle.backend.security;
+package com.findapickle.backend.config;
 
+import com.findapickle.backend.security.JWTAuthenticationEntryPoint;
+import com.findapickle.backend.security.JWTRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +43,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
     }
 
+    private static final String[] AUTH_WHITELIST = {
+            // -- swagger ui
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**"};
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -54,20 +66,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        // We don't need CSRF for this example
         httpSecurity.csrf().disable().cors().and()
-                // dont authenticate this particular request
                 .authorizeRequests()
-                //.antMatchers().permitAll()
-                //.antMatchers(HttpMethod.GET, "").permitAll().
-                .antMatchers(HttpMethod.POST, "/auth/authenticate", "/auth/register").permitAll().
-                // all other requests need to be authenticated
-                anyRequest().authenticated().and().
-                // make sure we use stateless session; session won't be used to
-                // store user's state.
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/authenticate", "/auth/register").permitAll()
+                .anyRequest().authenticated().and().
                 exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        // Add a filter to validate the tokens with every request
+
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
     }
 

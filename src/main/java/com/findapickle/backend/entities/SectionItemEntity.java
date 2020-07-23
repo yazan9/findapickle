@@ -1,5 +1,9 @@
 package com.findapickle.backend.entities;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -9,24 +13,24 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "sectionsItems")
-public class SectionItem implements Serializable {
+public class SectionItemEntity implements Serializable {
     private static final long serialVersionUID = 5313493413859894403L;
 
     @Id
     @ManyToOne
-    private Section section;
+    private SectionEntity section;
 
     @Id
     @ManyToOne
-    private Item item;
+    private ItemEntity item;
 
-    public SectionItem(Section section, Item item) {
+    public SectionItemEntity(SectionEntity section, ItemEntity item) {
         this.section = section;
         this.item = item;
-    }
-
-    public SectionItem() {
     }
 
     @Override
@@ -37,28 +41,12 @@ public class SectionItem implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        SectionItem that = (SectionItem) o;
+        SectionItemEntity that = (SectionItemEntity) o;
         return Objects.equals(section, that.section) && Objects.equals(item, that.item);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(section, item);
-    }
-
-    public Section getSection() {
-        return section;
-    }
-
-    public void setSection(Section section) {
-        this.section = section;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
     }
 }
