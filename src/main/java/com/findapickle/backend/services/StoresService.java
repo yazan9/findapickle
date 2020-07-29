@@ -12,6 +12,7 @@ import com.findapickle.backend.models.dto.Store;
 import com.findapickle.backend.repositories.StoresRepository;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class StoresService {
 
     public List<Store> getAllStores() {
         List<StoreEntity> stores = storesRepository.findAll();
-        return Collections.singletonList(modelMapper.map(stores, Store.class));
+        return modelMapper.map(stores, new TypeToken<List<Store>>() {}.getType());
     }
 
     public Store findById(Long id){
@@ -41,28 +42,31 @@ public class StoresService {
         return modelMapper.map(store, Store.class);
     }
 
-    public ResponseEntity<?> save(String token, Store store) {
+    public Store save(String token, Store store) {
         if(!adminService.isAdmin(token))
             throw new ForbiddenException();
         try {
             StoreEntity newStore = modelMapper.map(store, StoreEntity.class);
             this.storesRepository.save(newStore);
-            return ResponseEntity.ok().build();
+            return modelMapper.map(newStore, Store.class);
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }
     }
 
-    public ResponseEntity<?> update(String token, Store store) {
+    public Store update(String token, Store store) {
         if(!adminService.isAdmin(token))
             throw new ForbiddenException();
         try {
             StoreEntity updatedStore = storesRepository.findById(store.getId()).orElseThrow(NotFoundException::new);
             updatedStore.setName(store.getName());
             this.storesRepository.save(updatedStore);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
+            return modelMapper.map(updatedStore, Store.class);
+        } catch(NotFoundException e){
+            throw e;
+        }
+        catch (Exception e) {
             logger.error(e.getMessage());
             throw new InternalServerErrorException();
         }

@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class UsersService {
   private UsersRepository usersRepository;
 
   @Autowired
+  @Qualifier("UsersMapper")
   private ModelMapper modelMapper;
 
   @Autowired
@@ -39,7 +41,7 @@ public class UsersService {
     else throw new ForbiddenException();
   }
 
-  public ResponseEntity<?> update(String token, User user) {
+  public User update(String token, User user) {
     try {
       UserEntity updatedUser = usersRepository.findByEmail(jwtTokenUtil.getEmailFromToken(token)).orElseThrow(NotFoundException::new);
       if(!authService.isAuthorizedOnUser(token, updatedUser))
@@ -48,7 +50,7 @@ public class UsersService {
       updatedUser.setAvatar(user.getAvatar());
       updatedUser.setUsername(user.getUsername());
       this.usersRepository.save(updatedUser);
-      return ResponseEntity.ok().build();
+      return modelMapper.map(updatedUser, User.class);
     } catch (DataIntegrityViolationException e) {
       throw new DuplicateEntryException("A user with the same email already exists");
     } catch (Exception e) {

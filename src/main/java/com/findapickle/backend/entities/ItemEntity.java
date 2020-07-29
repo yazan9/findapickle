@@ -43,11 +43,11 @@ public class ItemEntity implements Serializable{
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SectionItemEntity> sections = new ArrayList<>();
-
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ListItemEntity> shoppingLists = new ArrayList<>();
+//    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<SectionItemEntity> sections = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "item")
+//    private List<ListItemEntity> shoppingLists = new ArrayList<>();
 
     @Override
     public int hashCode() {

@@ -42,18 +42,18 @@ public class ShoppingListEntity implements Serializable {
     @JoinTable(name="lists_items", joinColumns = @JoinColumn(name="shopping_list_id"), inverseJoinColumns = @JoinColumn(name="item_id"))
     private List<ItemEntity> items = new ArrayList<>();
 
-    public void addItem(ItemEntity item){
-        ListItemEntity listItem = new ListItemEntity(this, item);
-        item.getShoppingLists().add(listItem);
-    }
-
-    public void removeItem(ItemEntity item) {
-        ListItemEntity listItem = new ListItemEntity(this, item);
-        item.getShoppingLists().remove(listItem);
-        items.remove(listItem);
-        listItem.setShoppingList(null);
-        listItem.setItem(null);
-    }
+//    public void addItem(ItemEntity item){
+//        ListItemEntity listItem = new ListItemEntity(this, item);
+//        item.getShoppingLists().add(listItem);
+//    }
+//
+//    public void removeItem(ItemEntity item) {
+//        ListItemEntity listItem = new ListItemEntity(this, item);
+//        item.getShoppingLists().remove(listItem);
+//        items.remove(listItem);
+//        listItem.setShoppingList(null);
+//        listItem.setItem(null);
+//    }
 
     @Override
     public int hashCode() {

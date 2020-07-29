@@ -12,6 +12,7 @@ import com.findapickle.backend.models.dto.Location;
 import com.findapickle.backend.repositories.LocationsRepository;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class LocationsService {
 
     public List<Location> getStoreLocations(Long storeId) {
         List<LocationEntity> locations = locationsRepository.findByStoreId(storeId).orElseThrow(NotFoundException::new);
-        return Collections.singletonList(modelMapper.map(locations, Location.class));
+        return modelMapper.map(locations, new TypeToken<List<Location>>() {}.getType());
     }
 
     public Location findById(Long id){
@@ -60,6 +61,8 @@ public class LocationsService {
             throw new ForbiddenException();
         try {
             LocationEntity updatedLocation = locationsRepository.findById(location.getId()).orElseThrow(NotFoundException::new);
+            updatedLocation.setAddress(location.getAddress());
+            updatedLocation.setName(location.getName());
             this.locationsRepository.save(updatedLocation);
             return modelMapper.map(updatedLocation, Location.class);
         } catch (Exception e) {

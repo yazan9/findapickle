@@ -1,5 +1,6 @@
 package com.findapickle.backend.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,9 +16,11 @@ import com.findapickle.backend.repositories.UsersRepository;
 
 import com.findapickle.backend.security.JWTTokenUtil;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +37,8 @@ public class AdminService {
     private JWTTokenUtil jwtTokenUtil;
 
     @Autowired
-    private ModelMapper mapper;
+    @Qualifier("UsersMapper")
+    private ModelMapper usersMapper;
 
     private final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
@@ -52,7 +56,7 @@ public class AdminService {
         if(!isAdmin(token))
             throw new ForbiddenException();
         List<UserEntity> users = usersRepository.findAll();
-        return Collections.singletonList(mapper.map(users, User.class));
+        return usersMapper.map(users, new TypeToken<List<User>>() {}.getType());
     }
 
     public void deleteUser(UserEntity user){

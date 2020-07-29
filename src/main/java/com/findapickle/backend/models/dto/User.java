@@ -21,8 +21,6 @@ public class User implements Serializable {
 
     private String facebookId;
 
-    private boolean admin;
-
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

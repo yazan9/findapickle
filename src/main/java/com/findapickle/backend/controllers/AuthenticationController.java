@@ -65,7 +65,7 @@ public class AuthenticationController {
     public JWTResponse register(@RequestBody User user) throws Exception {
         try {
             UserEntity savedUser = userDetailsService.save(user);
-            doAuthenticate(savedUser.getEmail(), savedUser.getPassword());
+            doAuthenticate(user.getEmail(), user.getPassword());
             final UserEntity userDetails = usersRepository.findByEmail(savedUser.getEmail()).orElseThrow(NotFoundException::new);;
             final String accessToken = jwtTokenUtil.generateToken(userDetails);
             return new JWTResponse(accessToken);

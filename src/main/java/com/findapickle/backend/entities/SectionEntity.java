@@ -41,18 +41,18 @@ public class SectionEntity implements Serializable{
     @JoinTable(name="sections_items", joinColumns = @JoinColumn(name="section_id"), inverseJoinColumns = @JoinColumn(name="item_id"))
     private List<ItemEntity> items = new ArrayList<>();
 
-    public void addItem(ItemEntity item){
-        SectionItemEntity sectionItem = new SectionItemEntity(this, item);
-        item.getSections().add(sectionItem);
-    }
-
-    public void removeItem(ItemEntity item) {
-        SectionItemEntity sectionItem = new SectionItemEntity(this, item);
-        item.getSections().remove(sectionItem);
-        items.remove(sectionItem);
-        sectionItem.setSection(null);
-        sectionItem.setItem(null);
-    }
+//    public void addItem(ItemEntity item){
+//        SectionItemEntity sectionItem = new SectionItemEntity(this, item);
+//        item.getSections().add(sectionItem);
+//    }
+//
+//    public void removeItem(ItemEntity item) {
+//        SectionItemEntity sectionItem = new SectionItemEntity(this, item);
+//        item.getSections().remove(sectionItem);
+//        items.remove(sectionItem);
+//        sectionItem.setSection(null);
+//        sectionItem.setItem(null);
+//    }
 
     @Override
     public int hashCode() {

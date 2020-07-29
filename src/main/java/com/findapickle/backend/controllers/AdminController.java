@@ -39,12 +39,12 @@ public class AdminController {
 
     //STORES
     @PostMapping(value="/stores/add")
-    public ResponseEntity<?> addStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
+    public Store addStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
         return storesService.save(token, store);
     }   
 
     @PutMapping(value="/stores/edit")
-    public ResponseEntity<?> updateStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
+    public Store updateStore(@RequestHeader("Authorization") String token, @RequestBody Store store){
         return storesService.update(token, store);
     }
 

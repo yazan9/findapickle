@@ -18,8 +18,8 @@ public class UsersController {
         return usersService.findById(token, id);
     }
 
-    @PutMapping(value="/{id}")
-    public ResponseEntity<?> update(@RequestHeader("Authorization") String token, @RequestBody User user){
+    @PutMapping(value="/")
+    public User update(@RequestHeader("Authorization") String token, @RequestBody User user){
         return usersService.update(token, user);
     }
 }

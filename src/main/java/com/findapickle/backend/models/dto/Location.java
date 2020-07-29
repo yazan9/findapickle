@@ -22,4 +22,6 @@ public class Location implements Serializable {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private Long storeId;
 }
