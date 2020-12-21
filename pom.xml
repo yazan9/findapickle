@@ -9,10 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.findapickle</groupId>
-	<artifactId>backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>backend</name>
-	<description>Find a Pickle</description>
+	<artifactId>findapickle-backend</artifactId>
+	<version>0.1.0</version>
 
 	<properties>
 		<java.version>1.8</java.version>
