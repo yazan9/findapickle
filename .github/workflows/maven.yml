@@ -22,6 +22,8 @@ jobs:
           java-version: 11
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+        env:
+          - SPRING_PROFILES_ACTIVE: dev
       - name: deploy to EC2
         uses: appleboy/scp-action@master
         with:
