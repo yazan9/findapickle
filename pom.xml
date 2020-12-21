@@ -88,10 +88,10 @@
 		</dependency>
 		
 		<!-- Flyway -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-		</dependency> -->
+		</dependency>
         <!-- Flyway -->
         
         <!-- jackson -->
@@ -127,11 +127,11 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- <plugin>
+			<plugin>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>6.2.2</version>
-			</plugin> -->
+			</plugin>
 		</plugins>
 	</build>
 </project>
